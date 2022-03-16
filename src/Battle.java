@@ -2,121 +2,168 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Scanner;
 
 public class Battle {
 
 	private DataBaseController dbcontroller = new DataBaseController();
+	private Trainer userParty;
+	private Trainer enemyParty;
+	private boolean battlestatus;
+	private Pokemon userPokemon;
+	private Pokemon enemyPokemon;
+	private Moves userMove;
+	private Moves enemyMove;
 
-	// create enemy team
-	public void enemyteam() {
-		HashMap<String, ArrayList<String>> enemyteam = new HashMap<String, ArrayList<String>>();
-		String pokename;
-		ArrayList<String> pokemonlist = new ArrayList<>();
-		String pokemonmove;
-		int j = 0;
-		// String[] pokemoves = new String[4];
-		ArrayList<String> pokemoves = new ArrayList<>();
-		for (int i = 0; i < 3; i++) {
+	public Battle() {
 
-			// store pokemon name
-			pokename = dbcontroller.getpokemonname();
-			System.out.println(i + " poke is : " + pokename);
-			// check if pokemon exits in list
-			if (!pokemonlist.contains(pokename)) {
-				// new string
-				pokemonlist.add(pokename);
-				System.out.println(pokename);
-				// pokemoves = new String[4];
+	}
 
-				for (j = 0; j < 4; j++) {
-					pokemonmove = dbcontroller.getpokemonmove(pokename);
-					System.out.println(j + " pokemon move: " + pokemonmove);
-					if (pokemonmove != null) {
-						System.out.println("---" + pokemoves.contains(pokemonmove));
-						// if (!Arrays.stream(pokemoves).anyMatch(pokemonmove::equals)) {
-						if (!pokemoves.contains(pokemonmove)) {
-							// pokemoves[j] = pokemonmove;
-							pokemoves.add(pokemonmove);
-						} else {
-							j--;
-						}
-					} else {
-						System.out.println("reset-----------------");
-						pokemonlist.remove(pokename);
-						i--;
+	public Battle(Trainer userTeam, Trainer enemyTrainer) {
+		this.userParty = userTeam;
+		this.enemyParty = enemyTrainer;
+		this.battlestatus = true;
+
+		teamstatuscheck();
+
+	}
+
+	public void teamstatuscheck() {
+		Pokemon plPoke = null;
+		Pokemon enPoke = null;
+		System.out.println("pokmeon status is: " + userParty.getParty().get(1).getstatus());
+		userParty.getParty().get(1).setStatus("desc");
+		userParty.getParty().get(2).setStatus("desc");
+		for (int i = 0; i < userParty.getParty().size(); i++) {
+			if (userParty.getParty().get(i).getstatus() != "desc") {
+				plPoke = userParty.getParty().get(i);
+				this.userPokemon = userParty.getParty().get(i);
+				for (int j = 0; j < enemyParty.getParty().size(); j++) {
+					if (enemyParty.getParty().get(j).getstatus() != "desc") {
+						enPoke = enemyParty.getParty().get(j);
+						this.enemyPokemon = enemyParty.getParty().get(j);
 						break;
 					}
-
 				}
-				// pokemonlist.add(pokename);
-				if (j == 4) {
-					enemyteam.put(pokename, pokemoves);
-
-				}
-			} else {
-				i--;
-
 			}
 		}
+		pokemonselect(plPoke, enPoke);
+	}
 
-		ArrayList<String> rando = new ArrayList<>();
-		for (Map.Entry mapElement : enemyteam.entrySet()) {
-			String key = (String) mapElement.getKey();
-			System.out.println("pokemon: " + key);
-			rando = (ArrayList<String>) mapElement.getValue();
-			for (String s : rando) {
-				System.out.print(s + " ");
+	public void pokemonselect(Pokemon userpoke, Pokemon enpoke) {
+		System.out.println("Starting Pokemon------------------------------");
+		System.out.println("user: " + userpoke.getPokemonName());
+		System.out.println("enemy: " + enpoke.getPokemonName());
+		System.out.println("Starting Pokemon------------------------------");
+		initiateBattle(userpoke, enpoke);
+	}
+
+	public void initiateBattle(Pokemon userpoke, Pokemon enpoke) {
+		Boolean userTurn = true;
+		Boolean enemyTeamstatus = true;
+		Boolean userTeamstatus = true;
+		Scanner selectedmove = new Scanner(System.in);
+		String selmove;
+		Moves moveselected;
+		Moves enemMove;
+		Moves useMove;
+		Pokemon currturn;
+		Pokemon secturn;
+		double speed = userpoke.getspeed() - enpoke.getspeed();
+		// select move
+		this.userMove = selectMove(userpoke);
+		this.enemyMove = selectMove(enpoke);
+		// check speed
+
+		// check damage
+		// check hp
+		// check pokemon
+
+		while (userpoke.getstatus() != "desc" || enpoke.getstatus() != "desc") {
+			if (userpoke.getspeed() > enpoke.getspeed()) {
+				System.out.println("user's " + userpoke.getPokemonName() + " decide your first move: ");
+				System.out.print("Select move:");
+				for (int i = 0; i < userpoke.getmoveList().size(); i++) {
+					System.out.println((i + 1) + ": " + userpoke.getmoveList().get(i).getname());
+				}
+				selmove = selectedmove.nextLine();
+				moveselected = userpoke.getmoveList().get(Integer.valueOf(selmove) - 1);
+				System.out.println(userpoke.getPokemonHp() + "||" + enpoke.getPokemonHp());
+				if (enpoke.getPokemonHp() - moveselected.getpower() > 0) {
+					enpoke.sethp(enpoke.getPokemonHp() - moveselected.getpower());
+					System.out.println(userpoke.getPokemonHp() + "||" + enpoke.getPokemonHp());
+				} else {
+					System.out.println("pokemon defeated");
+					enpoke.sethp(0);
+					enpoke.setStatus("desc");
+				}
+				System.out.println(userpoke.getPokemonHp() + "||" + enpoke.getPokemonHp());
+				System.out.println(userpoke.getPokemonHp() + " " + enpoke.getPokemonHp());
+				System.out.println();
+
+			} else {
+				System.out.println(enpoke.getPokemonName() + " decide your first move: ");
+				System.out.print("Select move:");
+				for (int i = 0; i < enpoke.getmoveList().size(); i++) {
+					System.out.println((i + 1) + ": " + enpoke.getmoveList().get(i).getname());
+				}
+				selmove = selectedmove.nextLine();
+				moveselected = enpoke.getmoveList().get(Integer.valueOf(selmove) - 1);
+				System.out.println(userpoke.getPokemonHp() + "||" + enpoke.getPokemonHp());
+				if (userpoke.getPokemonHp() - moveselected.getpower() > 0) {
+					userpoke.sethp(userpoke.getPokemonHp() - moveselected.getpower());
+					System.out.println(userpoke.getPokemonHp() + "||" + enpoke.getPokemonHp());
+				} else {
+					System.out.println("pokemon defeated");
+					userpoke.sethp(0);
+					userpoke.setStatus("desc");
+				}
+				System.out.println(userpoke.getPokemonHp() + "||" + enpoke.getPokemonHp());
+				System.out.println(userpoke.getPokemonHp() + " " + enpoke.getPokemonHp());
+				System.out.println(userpoke.getstatus() + "||" + enpoke.getstatus());
+				System.out.println(userpoke.getstatus() != "desc" || enpoke.getstatus() != "desc");
+				System.out.println();
 			}
-			System.out.println();
 		}
 
 	}
 
-	// create enemy team
-	public void enemyteamtest() {
-		HashMap<String, String[]> enemyteam = new HashMap<String, String[]>();
-		String pokename;
-		ArrayList<String> pokemonlist = new ArrayList<>();
-		String pokemonmove;
-		int m = 0;
-		String[] pokemoves = new String[4];
-		// ArrayList<String> pokemoves = new ArrayList<>();
-		// pokemon
-		for (int i = 0; i < 3; i++) {
-			pokename = dbcontroller.getpokemonname();
-			if (pokemonlist.contains(pokename)) {
-				i--;
-			} else {
-				pokemonlist.add(pokename);
-				pokemoves = new String[4];
-				for (m = 0; m < 4; m++) {
-					pokemonmove = dbcontroller.getpokemonmove(pokename);
-					if (pokemonmove != null) {
-						pokemoves[m] = pokemonmove;
-					} else {
-						pokemonlist.remove(pokename);
-						i--;
-						break;
-					}
-				}
-				if (m == 4) {
-					enemyteam.put(pokename, pokemoves);
-				}
-			}
+	public Moves selectMove(Pokemon poke) {
+		String selmove;
+		Moves moveselected;
+		Scanner selectedmove = new Scanner(System.in);
+		for (int i = 0; i < poke.getmoveList().size(); i++) {
+			System.out.println((i + 1) + ": " + poke.getmoveList().get(i).getname());
 		}
+		selmove = selectedmove.nextLine();
+		moveselected = poke.getmoveList().get(Integer.valueOf(selmove) - 1);
+		return moveselected;
 
-		System.out.println("Enemy Team--------------------------------------");
-		String[] rando = new String[4];
-		for (Map.Entry mapElement : enemyteam.entrySet()) {
-			String key = (String) mapElement.getKey();
-			System.out.println(key);
-			rando = (String[]) mapElement.getValue();
-			for (String ss : rando) {
-				System.out.print(ss + " ");
-			}
-			System.out.println();
+	}
+
+	public void damageStep() {
+
+		if (userPokemon.getspeed() > enemyPokemon.getspeed()) {
+			healthcheck(userPokemon);
+			dmgcalc(userMove, enemyPokemon);
+		} else {
+			healthcheck(enemyPokemon);
+			dmgcalc(enemyMove, userPokemon);
 		}
+	}
 
+	public boolean healthcheck(Pokemon pokemon) {
+		return pokemon.getstatus() == "desc";
+	}
+
+	public void dmgcalc(Moves move, Pokemon secpoke) {
+		if (secpoke.getPokemonHp() - move.getpower() > 0) {
+			secpoke.sethp(secpoke.getPokemonHp() - move.getpower());
+
+		} else {
+			secpoke.sethp(0);
+			System.out.println(secpoke.getPokemonName() + " is deafeated!");
+		}
 	}
 
 }

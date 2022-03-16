@@ -21,6 +21,9 @@ public class SQLQuerries {
 				for (String s : column) {
 					columndata.put(s, resultset.getString(s));
 				}
+				statement.close();
+				resultset.close();
+				connection.close();
 				return (columndata);
 			}
 			statement.close();

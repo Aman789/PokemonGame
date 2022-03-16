@@ -32,12 +32,33 @@ public class DataBaseController extends SQLQuerries {
 		columns.clear();
 		columns.add("move_name");
 		String move = setup("call output_one_pokemon_move('" + pokename + "');", columns).get("move_name");
-		
+
 		if (move != null) {
 			return move;
 
 		}
 		return null;
+	}
+
+	public HashMap<String, String> getPokemonStats(String pokename) {
+		columns = new ArrayList<>();
+		columns.add("b_atk");
+		columns.add("b_def");
+		columns.add("b_hp");
+		columns.add("b_sp_atk");
+		columns.add("b_sp_def");
+		columns.add("b_speed");
+		return setup("call output_pokemon_base_stats('" + pokename + "');", columns);
+
+	}
+
+	public HashMap<String, String> getMoveStats(String move) {
+		columns = new ArrayList<>();
+		columns.add("move_power");
+		columns.add("move_accuracy");
+		columns.add("move_pp");
+		columns.add("type_name");
+		return setup("call get_move_deatils_type('" + move + "');", columns);
 	}
 
 }

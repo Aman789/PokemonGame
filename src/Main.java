@@ -19,16 +19,36 @@ import java.util.Map;
 import java.util.Scanner;
 
 public class Main {
-	
 
 	public static void main(String[] args) {
-		
-		UserDetails userdetails = new UserDetails();
-		Battle battle = new Battle();
-		userdetails.userpokemonselection();
-		
-		battle.enemyteamtest();
 
+		UserDetails userdetails = new UserDetails();
+//		Battle battle = new Battle();
+//		userdetails.userpokemonselection();
+//		
+//		userdetails.enemyteamtest();
+//		Trainer trainer = new Trainer();
+//		Pokemon poke1 = new Pokemon("pikachu");
+//		Moves move1 = new Moves("water-gun");
+//		poke1.sethp(100);
+//		System.out.println(poke1.getPokemonHp());
+//		System.out.println(trainer.getParty());
+//		trainer.addPokemon(poke1);
+//		poke1.addMoveToList(move1);
+//		for (Pokemon pok : trainer.getParty()) {
+//			System.out.println(pok.getPokemonName());
+//			for (Moves move : pok.getmoveList()) {
+//				System.out.println("following moves " + move.getname());
+//			}
+//		}
+		Trainer user = new Trainer();
+		Trainer enemy = new Trainer();
+		user = userdetails.userPartySelection();
+		enemy = userdetails.enemyteamtest();
+		
+		Battle battle = new Battle(user, enemy);
+		
+		
 	}
 
 }
