@@ -3,7 +3,7 @@ import java.util.List;
 
 public class Trainer {
 
-	private List<Pokemon> pokemonList = new ArrayList<>();;
+	private List<Pokemon> pokemonList = new ArrayList<>();
 
 	public List<Pokemon> getParty() {
 		return pokemonList;

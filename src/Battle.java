@@ -9,6 +9,8 @@ public class Battle {
 	private DataBaseController dbcontroller = new DataBaseController();
 	private Trainer userParty;
 	private Trainer enemyParty;
+	private boolean enemyteamstatus;
+	private boolean userteamstatus;
 	private boolean battlestatus;
 	private Pokemon userPokemon;
 	private Pokemon enemyPokemon;
@@ -22,6 +24,8 @@ public class Battle {
 	public Battle(Trainer userTeam, Trainer enemyTrainer) {
 		this.userParty = userTeam;
 		this.enemyParty = enemyTrainer;
+		this.enemyteamstatus = true;
+		this.userteamstatus = true;
 		this.battlestatus = true;
 
 		teamstatuscheck();
@@ -50,11 +54,62 @@ public class Battle {
 		pokemonselect(plPoke, enPoke);
 	}
 
+	public void pokeselectionuser() {
+		Pokemon plPoke = null;
+		Pokemon enPoke = null;
+		System.out.println(enemyPokemon.getPokemonName());
+		if (enemyPokemon.getstatus().contains("desc")) {
+			for (int j = 0; j < enemyParty.getParty().size(); j++) {
+				if (enemyParty.getParty().get(j).getstatus() != "desc") {
+					enPoke = enemyParty.getParty().get(j);
+					this.enemyPokemon = enemyParty.getParty().get(j);
+					break;
+				}
+			}
+		}
+
+		if (userPokemon.getstatus().contains("desc")) {
+			for (int i = 0; i < userParty.getParty().size(); i++) {
+				if (userParty.getParty().get(i).getstatus() != "desc") {
+					plPoke = userParty.getParty().get(i);
+					this.userPokemon = userParty.getParty().get(i);
+					break;
+				}
+			}
+		}
+	}
+
+	public boolean enemypartystatuscheck() {
+		Pokemon enPoke = null;
+		for (int j = 0; j < enemyParty.getParty().size(); j++) {
+			if (enemyParty.getParty().get(j).getstatus() != "desc") {
+				return this.battlestatus;
+			}
+
+		}
+		this.enemyteamstatus = false;
+		this.battlestatus = false;
+		return this.battlestatus;
+	}
+
+	public boolean userpartystatuscheck() {
+		Pokemon plPoke = null;
+		for (int i = 0; i < userParty.getParty().size(); i++) {
+			if (userParty.getParty().get(i).getstatus() != "desc") {
+				return this.battlestatus;
+			}
+		}
+
+		this.userteamstatus = false;
+		this.battlestatus = false;
+		return this.battlestatus;
+	}
+
 	public void pokemonselect(Pokemon userpoke, Pokemon enpoke) {
 		System.out.println("Starting Pokemon------------------------------");
 		System.out.println("user: " + userpoke.getPokemonName());
 		System.out.println("enemy: " + enpoke.getPokemonName());
-		System.out.println("Starting Pokemon------------------------------");
+		System.out.println("----------------------------------------------");
 		initiateBattle(userpoke, enpoke);
 	}
 
@@ -65,67 +120,146 @@ public class Battle {
 		Scanner selectedmove = new Scanner(System.in);
 		String selmove;
 		Moves moveselected;
-		Moves enemMove;
+		Moves enemMove = null;
 		Moves useMove;
 		Pokemon currturn;
 		Pokemon secturn;
 		double speed = userpoke.getspeed() - enpoke.getspeed();
 		// select move
-		this.userMove = selectMove(userpoke);
-		this.enemyMove = selectMove(enpoke);
+//		this.userMove = selectMove(userpoke);
+//		this.enemyMove = selectMove(enpoke);
 		// check speed
 
 		// check damage
-		// check hp
+		// check hpD
 		// check pokemon
 
-		while (userpoke.getstatus() != "desc" || enpoke.getstatus() != "desc") {
-			if (userpoke.getspeed() > enpoke.getspeed()) {
-				System.out.println("user's " + userpoke.getPokemonName() + " decide your first move: ");
-				System.out.print("Select move:");
-				for (int i = 0; i < userpoke.getmoveList().size(); i++) {
-					System.out.println((i + 1) + ": " + userpoke.getmoveList().get(i).getname());
+		displayhp(userpoke, enpoke);
+
+//		while (userpoke.getstatus() != "desc" & enpoke.getstatus() != "desc") {
+		while (this.battlestatus) {
+			System.out.println("user's " + userpoke.getPokemonName() + " decide your first move: ");
+			System.out.println("Select move:");
+			for (int i = 0; i < userpoke.getmoveList().size(); i++) {
+				System.out.println((i + 1) + ": " + userpoke.getmoveList().get(i).getname());
+			}
+			selmove = selectedmove.nextLine();
+			useMove = userpoke.getmoveList().get(Integer.valueOf(selmove) - 1);
+
+			for (int i = 0; i < enpoke.getmoveList().size(); i++) {
+				if (enpoke.getmoveList().get(i).getpower() > 0) {
+					enemMove = enpoke.getmoveList().get(i);
 				}
-				selmove = selectedmove.nextLine();
-				moveselected = userpoke.getmoveList().get(Integer.valueOf(selmove) - 1);
-				System.out.println(userpoke.getPokemonHp() + "||" + enpoke.getPokemonHp());
-				if (enpoke.getPokemonHp() - moveselected.getpower() > 0) {
-					enpoke.sethp(enpoke.getPokemonHp() - moveselected.getpower());
-					System.out.println(userpoke.getPokemonHp() + "||" + enpoke.getPokemonHp());
+			}
+
+			if (userpoke.getspeed() > enpoke.getspeed()) {
+
+//				for (int i = 0; i < userpoke.getmoveList().size(); i++) {
+//					System.out.println((i + 1) + ": " + userpoke.getmoveList().get(i).getname());
+//				}
+//				selmove = selectedmove.nextLine();
+//				moveselected = userpoke.getmoveList().get(Integer.valueOf(selmove) - 1);
+//				System.out.println(userpoke.getPokemonHp() + "||" + enpoke.getPokemonHp());
+				if (enpoke.getPokemonHp() - useMove.getpower() > 0) {
+					enpoke.sethp(enpoke.getPokemonHp() - useMove.getpower());
+					//System.out.println(userpoke.getPokemonHp() + "||" + enpoke.getPokemonHp());
 				} else {
-					System.out.println("pokemon defeated");
+					System.out.println(enpoke.getPokemonName() + " was defeated");
 					enpoke.sethp(0);
 					enpoke.setStatus("desc");
 				}
-				System.out.println(userpoke.getPokemonHp() + "||" + enpoke.getPokemonHp());
-				System.out.println(userpoke.getPokemonHp() + " " + enpoke.getPokemonHp());
-				System.out.println();
+				if (!enpoke.getstatus().contains("desc")) {
+					if (userpoke.getPokemonHp() - enemMove.getpower() > 0) {
+						userpoke.sethp(userpoke.getPokemonHp() - enemMove.getpower());
+						//System.out.println(userpoke.getPokemonHp() + "||" + enpoke.getPokemonHp());
+					} else {
+						System.out.println(userpoke.getPokemonName() + " was defeated");
+						userpoke.sethp(0);
+						userpoke.setStatus("desc");
+					}
+				}
+
+				
 
 			} else {
-				System.out.println(enpoke.getPokemonName() + " decide your first move: ");
-				System.out.print("Select move:");
-				for (int i = 0; i < enpoke.getmoveList().size(); i++) {
-					System.out.println((i + 1) + ": " + enpoke.getmoveList().get(i).getname());
-				}
-				selmove = selectedmove.nextLine();
-				moveselected = enpoke.getmoveList().get(Integer.valueOf(selmove) - 1);
+//				System.out.println(enpoke.getPokemonName() + " decide your first move: ");
+//				System.out.print("Select move:");
+//				for (int i = 0; i < enpoke.getmoveList().size(); i++) {
+//					System.out.println((i + 1) + ": " + enpoke.getmoveList().get(i).getname());
+//				}
+//				selmove = selectedmove.nextLine();
+//				moveselected = enpoke.getmoveList().get(Integer.valueOf(selmove) - 1);
 				System.out.println(userpoke.getPokemonHp() + "||" + enpoke.getPokemonHp());
-				if (userpoke.getPokemonHp() - moveselected.getpower() > 0) {
-					userpoke.sethp(userpoke.getPokemonHp() - moveselected.getpower());
-					System.out.println(userpoke.getPokemonHp() + "||" + enpoke.getPokemonHp());
+				if (userpoke.getPokemonHp() - enemMove.getpower() > 0) {
+					userpoke.sethp(userpoke.getPokemonHp() - enemMove.getpower());
+					//System.out.println(userpoke.getPokemonHp() + "||" + enpoke.getPokemonHp());
 				} else {
-					System.out.println("pokemon defeated");
 					userpoke.sethp(0);
 					userpoke.setStatus("desc");
 				}
-				System.out.println(userpoke.getPokemonHp() + "||" + enpoke.getPokemonHp());
-				System.out.println(userpoke.getPokemonHp() + " " + enpoke.getPokemonHp());
-				System.out.println(userpoke.getstatus() + "||" + enpoke.getstatus());
-				System.out.println(userpoke.getstatus() != "desc" || enpoke.getstatus() != "desc");
-				System.out.println();
+				if (!userpoke.getstatus().contains("desc")) {
+					if (enpoke.getPokemonHp() - useMove.getpower() > 0) {
+						enpoke.sethp(enpoke.getPokemonHp() - useMove.getpower());
+						//System.out.println(userpoke.getPokemonHp() + "||" + enpoke.getPokemonHp());
+					} else {
+						System.out.println("was defeated");
+						enpoke.sethp(0);
+						enpoke.setStatus("desc");
+					}
+					
+				}
+			}
+
+			pokeselectionuser();
+			enemypartystatuscheck();
+			userpartystatuscheck();
+			enpoke = this.enemyPokemon;
+			userpoke = this.userPokemon;
+			displayhp(userpoke, enpoke);
+			System.out.println(userpoke.getstatus() + "   " + enpoke.getstatus());
+
+		}
+
+		if (!this.userteamstatus) {
+			System.out.println("user has lost");
+		} else {
+			System.out.println("Enemy defeated");
+		}
+		
+
+	}
+
+	public void battleCheck() {
+		Pokemon plPoke = null;
+		Pokemon enPoke = null;
+		System.out.println(enemyPokemon.getPokemonName());
+		if (enemyPokemon.getstatus().contains("desc")) {
+			for (int j = 0; j < enemyParty.getParty().size(); j++) {
+				if (enemyParty.getParty().get(j).getstatus() != "desc") {
+					enPoke = enemyParty.getParty().get(j);
+					this.enemyPokemon = enemyParty.getParty().get(j);
+					System.out.println(enemyPokemon.getPokemonName());
+					break;
+				}
 			}
 		}
 
+		if (userPokemon.getstatus().contains("desc")) {
+			for (int i = 0; i < userParty.getParty().size(); i++) {
+				if (userParty.getParty().get(i).getstatus() != "desc") {
+					plPoke = userParty.getParty().get(i);
+					this.userPokemon = userParty.getParty().get(i);
+				}
+			}
+		}
+	}
+
+	public void displayhp(Pokemon userpoke, Pokemon enpoke) {
+		System.out.format("%20s %3s %20s", userpoke.getPokemonName(), "||", enpoke.getPokemonName());
+		System.out.println();
+		System.out.format("%20s %3s %20s", userpoke.getPokemonHp(), "||", enpoke.getPokemonHp());
+		// System.out.println(userpoke.getPokemonHp() + " " + enpoke.getPokemonHp());
+		System.out.println();
 	}
 
 	public Moves selectMove(Pokemon poke) {

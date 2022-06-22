@@ -45,10 +45,9 @@ public class Main {
 		Trainer enemy = new Trainer();
 		user = userdetails.userPartySelection();
 		enemy = userdetails.enemyteamtest();
-		
+
 		Battle battle = new Battle(user, enemy);
-		
-		
+
 	}
 
 }
